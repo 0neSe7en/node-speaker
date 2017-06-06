@@ -3,14 +3,14 @@
  * Module dependencies.
  */
 
-var os = require('os');
-var debug = require('debug')('speaker');
-var binding = require('bindings')('binding');
-var inherits = require('util').inherits;
-var Writable = require('readable-stream/writable');
+let os = require('os');
+let debug = require('debug')('speaker');
+let binding = require('bindings')('speaker');
+let inherits = require('util').inherits;
+let Writable = require('readable-stream/writable');
 
 // determine the native host endianness, the only supported playback endianness
-var endianness = 'function' == os.endianness ?
+let endianness = 'function' === os.endianness ?
                  os.endianness() :
                  'LE'; // assume little-endian for older versions of node.js
 
@@ -38,26 +38,26 @@ exports.module_name = binding.name;
  */
 
 exports.getFormat = function getFormat (format) {
-  var f = null;
-  if (format.bitDepth == 32 && format.float && format.signed) {
+  let f = null;
+  if (format.bitDepth === 32 && format.float && format.signed) {
     f = binding.MPG123_ENC_FLOAT_32;
-  } else if (format.bitDepth == 64 && format.float && format.signed) {
+  } else if (format.bitDepth === 64 && format.float && format.signed) {
     f = binding.MPG123_ENC_FLOAT_64;
-  } else if (format.bitDepth == 8 && format.signed) {
+  } else if (format.bitDepth === 8 && format.signed) {
     f = binding.MPG123_ENC_SIGNED_8;
-  } else if (format.bitDepth == 8 && !format.signed) {
+  } else if (format.bitDepth === 8 && !format.signed) {
     f = binding.MPG123_ENC_UNSIGNED_8;
-  } else if (format.bitDepth == 16 && format.signed) {
+  } else if (format.bitDepth === 16 && format.signed) {
     f = binding.MPG123_ENC_SIGNED_16;
-  } else if (format.bitDepth == 16 && !format.signed) {
+  } else if (format.bitDepth === 16 && !format.signed) {
     f = binding.MPG123_ENC_UNSIGNED_16;
-  } else if (format.bitDepth == 24 && format.signed) {
+  } else if (format.bitDepth === 24 && format.signed) {
     f = binding.MPG123_ENC_SIGNED_24;
-  } else if (format.bitDepth == 24 && !format.signed) {
+  } else if (format.bitDepth === 24 && !format.signed) {
     f = binding.MPG123_ENC_UNSIGNED_24;
-  } else if (format.bitDepth == 32 && format.signed) {
+  } else if (format.bitDepth === 32 && format.signed) {
     f = binding.MPG123_ENC_SIGNED_32;
-  } else if (format.bitDepth == 32 && !format.signed) {
+  } else if (format.bitDepth === 32 && !format.signed) {
     f = binding.MPG123_ENC_UNSIGNED_32;
   }
   return f;
@@ -90,8 +90,8 @@ function Speaker (opts) {
 
   // default lwm and hwm to 0
   if (!opts) opts = {};
-  if (null == opts.lowWaterMark) opts.lowWaterMark = 0;
-  if (null == opts.highWaterMark) opts.highWaterMark = 0;
+  if (null === opts.lowWaterMark) opts.lowWaterMark = 0;
+  if (null === opts.highWaterMark) opts.highWaterMark = 0;
 
   Writable.call(this, opts);
 
@@ -130,26 +130,26 @@ Speaker.prototype._open = function () {
     throw new Error('_open() called more than once!');
   }
   // set default options, if not set
-  if (null == this.channels) {
+  if (null === this.channels) {
     debug('setting default %o: %o', 'channels', 2);
     this.channels = 2;
   }
-  if (null == this.bitDepth) {
-    var depth = this.float ? 32 : 16;
+  if (null === this.bitDepth) {
+    let depth = this.float ? 32 : 16;
     debug('setting default %o: %o', 'bitDepth', depth);
     this.bitDepth = depth;
   }
-  if (null == this.sampleRate) {
+  if (null === this.sampleRate) {
     debug('setting default %o: %o', 'sampleRate', 44100);
     this.sampleRate = 44100;
   }
-  if (null == this.signed) {
-    debug('setting default %o: %o', 'signed', this.bitDepth != 8);
-    this.signed = this.bitDepth != 8;
+  if (null === this.signed) {
+    debug('setting default %o: %o', 'signed', this.bitDepth !== 8);
+    this.signed = this.bitDepth !== 8;
   }
 
-  var format = exports.getFormat(this);
-  if (null == format) {
+  let format = exports.getFormat(this);
+  if (null === format) {
     throw new Error('invalid PCM format specified');
   }
 
@@ -163,7 +163,7 @@ Speaker.prototype._open = function () {
   // initialize the audio handle
   // TODO: open async?
   this.audio_handle = new Buffer(binding.sizeof_audio_output_t);
-  var r = binding.open(this.audio_handle, this.channels, this.sampleRate, format);
+  let r = binding.open(this.audio_handle, this.channels, this.sampleRate, format);
   if (0 !== r) {
     throw new Error('open() failed: ' + r);
   }
@@ -183,31 +183,31 @@ Speaker.prototype._open = function () {
 
 Speaker.prototype._format = function (opts) {
   debug('format(object keys = %o)', Object.keys(opts));
-  if (null != opts.channels) {
+  if (null !== opts.channels) {
     debug('setting %o: %o', 'channels', opts.channels);
     this.channels = opts.channels;
   }
-  if (null != opts.bitDepth) {
+  if (null !== opts.bitDepth) {
     debug('setting %o: %o', "bitDepth", opts.bitDepth);
     this.bitDepth = opts.bitDepth;
   }
-  if (null != opts.sampleRate) {
+  if (null !== opts.sampleRate) {
     debug('setting %o: %o', "sampleRate", opts.sampleRate);
     this.sampleRate = opts.sampleRate;
   }
-  if (null != opts.float) {
+  if (null !== opts.float) {
     debug('setting %o: %o', "float", opts.float);
     this.float = opts.float;
   }
-  if (null != opts.signed) {
+  if (null !== opts.signed) {
     debug('setting %o: %o', "signed", opts.signed);
     this.signed = opts.signed;
   }
-  if (null != opts.samplesPerFrame) {
+  if (null !== opts.samplesPerFrame) {
     debug('setting %o: %o', "samplesPerFrame", opts.samplesPerFrame);
     this.samplesPerFrame = opts.samplesPerFrame;
   }
-  if (null == opts.endianness || endianness == opts.endianness) {
+  if (null === opts.endianness || endianness === opts.endianness) {
     // no "endianness" specified or explicit native endianness
     this.endianness = endianness;
   } else {
@@ -232,10 +232,10 @@ Speaker.prototype._write = function (chunk, encoding, done) {
     // close() has already been called. this should not be called
     return done(new Error('write() call after close() call'));
   }
-  var b;
-  var self = this;
-  var left = chunk;
-  var handle = this.audio_handle;
+  let b;
+  let self = this;
+  let left = chunk;
+  let handle = this.audio_handle;
   if (!handle) {
     // this is the first time write() is being called; need to _open()
     try {
@@ -244,7 +244,7 @@ Speaker.prototype._write = function (chunk, encoding, done) {
       return done(e);
     }
   }
-  var chunkSize = this.blockAlign * this.samplesPerFrame;
+  let chunkSize = this.blockAlign * this.samplesPerFrame;
 
   function write () {
     if (self._closed) {
@@ -253,7 +253,7 @@ Speaker.prototype._write = function (chunk, encoding, done) {
     }
     b = left;
     if (b.length > chunkSize) {
-      var t = b;
+      let t = b;
       b = t.slice(0, chunkSize);
       left = t.slice(chunkSize);
     } else {
@@ -265,7 +265,7 @@ Speaker.prototype._write = function (chunk, encoding, done) {
 
   function onwrite (r) {
     debug('wrote %o bytes', r);
-    if (r != b.length) {
+    if (r !== b.length) {
       done(new Error('write() failed: ' + r));
     } else if (left) {
       debug('still %o bytes left in this chunk', left.length);
