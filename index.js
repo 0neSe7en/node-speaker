@@ -3,11 +3,11 @@
  * Module dependencies.
  */
 
-let os = require('os');
-let debug = require('debug')('speaker');
-let binding = require('bindings')('speaker');
-let inherits = require('util').inherits;
-let Writable = require('readable-stream/writable');
+const os = require('os');
+const debug = require('debug')('speaker');
+const binding = require('./build/Release/speaker.node');
+const inherits = require('util').inherits;
+const Writable = require('readable-stream/writable');
 
 // determine the native host endianness, the only supported playback endianness
 let endianness = 'function' === os.endianness ?
